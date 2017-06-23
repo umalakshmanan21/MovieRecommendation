@@ -36,6 +36,7 @@ public class MultipleFiles extends Configured implements Tool {
 
     }
 
+    // filesystem and arguments
     public int run(String[] args) throws Exception {
         Configuration c = new Configuration();
         String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
@@ -55,6 +56,7 @@ public class MultipleFiles extends Configured implements Tool {
         boolean success1 = false;
 
         Job job = new Job(c, "Multiple Job");
+        //Job1 - joins the movie and ratings data sets
 
         job.setJarByClass(MultipleFiles.class);
         MultipleInputs.addInputPath(job, p1, TextInputFormat.class, MultipleMap1.class);
@@ -65,6 +67,7 @@ public class MultipleFiles extends Configured implements Tool {
         FileOutputFormat.setOutputPath(job, p3);
         boolean success = job.waitForCompletion(true);
 
+        //job 2 - Lists all the movies by names rated by specific users
         if (success) {
             Job job2 = new Job(c, "Multiple Job2");
             job2.setJarByClass(MultipleFiles.class);
@@ -75,7 +78,7 @@ public class MultipleFiles extends Configured implements Tool {
             FileOutputFormat.setOutputPath(job2, p4);
             success1 = job2.waitForCompletion(true);
         }
-
+        // Job 3 - creates movie pairs and their ratings 
         if (success) {
             Job job3 = new Job(c, "Multiple Job3");
             job3.setJarByClass(MultipleFiles.class);
@@ -88,7 +91,7 @@ public class MultipleFiles extends Configured implements Tool {
             FileOutputFormat.setOutputPath(job3, p5);
             success1 = job3.waitForCompletion(true);
         }
-
+        // gets the specific movie from user and provides all the similar movies and their correlation&cosine similarity
         if (success) {
             Job job4 = new Job(c, "Multiple Job3");
             job4.setJarByClass(MultipleFiles.class);
@@ -168,6 +171,7 @@ public class MultipleFiles extends Configured implements Tool {
                     sb.append(splitVals1[0] + "::" + splitVals1[1]).append(",");
                 }
             }
+            // key : movie name , value: user_id and rating
 
             String[] array = sb.toString().split(",");
             for (String s : array) {
@@ -194,7 +198,7 @@ public class MultipleFiles extends Configured implements Tool {
             context.write(keyEmit, valEmit);
         }
     }
-
+// key : user_id, value : movies rated by that user.
     public static class MultipleReducer1 extends Reducer<Text, Text, Text, Text> {
 
         Text valEmit = new Text();
@@ -255,6 +259,8 @@ public class MultipleFiles extends Configured implements Tool {
         }
     }
 
+    // key : pair of movies , value: rating given by all the users for that movie pair 
+    //example format ((burbs,Christmas Story)::[4.0, 2.0, 3.0, 3.5, 4.0, 3.0, 2.0, 2.0, 2.5, 3.0],[5.0, 3.0, 3.5, 4.0, 5.0, 3.0, 5.0, 4.0, 3.5, 2.0])
     public static class MultipleReducer2 extends Reducer<Text, Text, Text, Text> {
 
         Text valEmit = new Text();
@@ -348,7 +354,8 @@ public class MultipleFiles extends Configured implements Tool {
                 context.write(keyEmit, new Text("::"+suggestedMovie+","+correlation + ", " + cosinesimilarity + "," + statisticalCorrelation + "," + sharedRating));
             }
         }
-
+    
+        // Statistical correlation calculation
         public double Correlation(ArrayList<Double> xs, ArrayList<Double> ys) {
             //TODO: check here that arrays are not null, of the same length etc
 
@@ -381,7 +388,8 @@ public class MultipleFiles extends Configured implements Tool {
             // correlation is just a normalized covariation
             return cov / sigmax / sigmay;
         }
-
+    
+        // Cosine similarity calculation 
         public static double cosineSimilarity(ArrayList<Double> vectorA, ArrayList<Double> vectorB) {
             double dotProduct = 0.0;
             double normA = 0.0;
@@ -395,6 +403,8 @@ public class MultipleFiles extends Configured implements Tool {
         }
 
     }
+    
+
     static class ValueComparator implements Comparator {
 
         Map map;
@@ -420,6 +430,7 @@ public class MultipleFiles extends Configured implements Tool {
         }
     }
 
+    // Key: movie name specified by the user Value : Similar movie name, blended similarity metric, statistical correlation, cosine similarity, number of shared ratings. 
     public static class MultipleReducer3 extends Reducer<Text, Text, Text, Text> {
 
         Text valEmit = new Text();
