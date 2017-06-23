@@ -2,12 +2,12 @@
 Movie recommendation 
 ### Input files 
     Input file for movies : ex./user/itis6320/movies.txt
-  • Input files for ratings : ex /user/itis6320/ratings.txt
-  • 4 output folders ex : 0utput1,output2, output3, output4
-  • Movie Name : "Amelie (Fabuleux destin d’Amelie Poulain)"
-  • Minimum similarity correlation :ex 0.4
-  • Minimum number of shared rating : ex. 10
-  • Top n recommended movies : ex 10
+    Input files for ratings : ex /user/itis6320/ratings.txt
+    4 output folders ex : 0utput1,output2, output3, output4
+    Movie Name : "Amelie (Fabuleux destin d’Amelie Poulain)"
+    Minimum similarity correlation :ex 0.4
+    Minimum number of shared rating : ex. 10
+    Top n recommended movies : ex 10
 In this program, there are 4 set of map reduce jobs being executed.
 ### Job 1:
   Mapper 1 takes movies.txt as input process the movie id, movie
